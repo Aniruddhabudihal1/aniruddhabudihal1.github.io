@@ -44,7 +44,7 @@ button { color: var(--text); cursor: pointer; }
 .listening-indicator a:hover { color: var(--accent); }
 .listening-indicator .metadata { font-size: .68rem; }
 .home-intro { padding: 34px 0 45px; text-align: center; }
-.figlet { color: var(--accent); font: clamp(10px, 2.2vw, 19px)/1.2 var(--mono); background: transparent; border: 0; white-space: pre; overflow: visible; margin: 0 auto 32px; padding: 0; width: max-content; max-width: 100%; text-align: left; letter-spacing: 0; }
+.figlet { color: var(--accent); font: clamp(4px, 1.3vw, 12px)/1.05 var(--mono); background: transparent; border: 0; white-space: pre; overflow: visible; margin: 0 auto 32px; padding: 0; width: max-content; max-width: 100%; text-align: left; letter-spacing: 0; }
 .introduction { max-width: 565px; margin: auto; font-size: 1rem; line-height: 1.8; }
 .introduction p { margin: 18px 0; }
 .introduction .byline { color: var(--secondary); font-size: .9rem; }
@@ -133,7 +133,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
   .nav-links { gap: 12px; width: 100%; font-size: .7rem; }
   .theme-toggle { margin-left: auto; }
   .home-intro { padding: 24px 0 28px; }
-  .figlet { font-size: clamp(8px, 2.03vw, 12px); margin-bottom: 26px; }
+  .figlet { font-size: clamp(4px, 1.3vw, 9px); margin-bottom: 26px; }
   .introduction { font-size: .95rem; }
   .writing-entry { grid-template-columns: 27px minmax(0, 1fr); gap: 8px; }
   .metadata { font-size: .68rem; }

@@ -13,7 +13,7 @@ No prior `url`, `baseurl`, or CNAME was present. Local defaults now reflect this
 ## Editing the homepage and site
 
 - `_data/home.yml`: the two introduction paragraphs.
-- `_includes/figlet.html`: pre-generated FIGlet `small` art, with a separate accessible H1. Regenerate offline if needed: `pyfiglet -f small 'Budihal logs'` (not a build/runtime dependency).
+- `_includes/figlet.html`: pre-generated FIGlet `banner` art, slanted and converted to checkerboard Braille dots to match the reference style, with a separate accessible H1. No browser font-art generator or runtime dependency is required.
 - `_config.yml`: title, description, navigation, verified social/contact links, permalink rules.
 - `assets/css/site.css`: palette variables and all responsive/editorial styles. The specified muted colour is used decoratively; small metadata uses a darker secondary text colour in light mode for readable contrast.
 - Theme selection follows the OS unless manually selected. The `budihal-theme` localStorage key saves the override; removing it restores system following. A tiny head script applies it before CSS loads. Without JS the OS palette still works, all content is readable, and inactive filter controls stay hidden.
@@ -56,14 +56,14 @@ Your own notes, with **Markdown** formatting.
 
 ## Music and Now
 
-- `_data/music.yml`: add items to `favourites` with `name`, optional `year`, `artwork` (local path or HTTPS URL), `note` (Markdown), and optional `link`. The file contains a commented schema, not invented favourites.
-- `_music_notes/unique-slug.md`: use `title`, `date`, optional `tags` front matter, then a short Markdown note. These appear inline on `/music/`, newest first.
+- `_data/music.yml`: add items to `favourites` with `name`, optional `year`, `artwork` (local path or HTTPS URL), and optional `link`. Personal notes and empty-shelf descriptions are no longer displayed.
+- `_music_notes/` remains available for existing Markdown, but the Music Notes section is no longer displayed on `/music/`. The Music page has no visible introductory description; recent listening is text-only.
 - `now.md`: edit the Reading / Building / Learning / Listening sections. All initial entries are explicitly unfilled, not claims about current activities.
 - `aboutme.md` remains your original biography. `contact.html` reads existing verified links from `_config.yml`, including email, GitHub, LinkedIn, Twitter/X, WhatsApp, and Medium. It does not use a form.
 
 ## Last.fm: credentials stay out of the site
 
-1. Obtain a Last.fm API key at https://www.last.fm/api/account/create.
+1. Obtain a Last.fm API key at <https://www.last.fm/api/account/create>.
 2. In repository Settings → Secrets and variables → Actions, add:
    - **Secret** `LASTFM_API_KEY`.
    - **Repository variable** `LASTFM_USERNAME` (your Last.fm username; not a secret).
@@ -72,7 +72,7 @@ Your own notes, with **Markdown** formatting.
 
 `scripts/fetch_lastfm.py` calls `user.getRecentTracks` once per production build, keeps only eight tracks and safe public metadata, and writes the snapshot **before** Jekyll builds. The Pages artifact includes that generated file. An Actions cache retains the last successful snapshot between builds; it is not committed to the repository. API errors retain cached data. Without credentials/data, both widgets retain their static fallback. Public listening history, track URLs, and optional artwork URLs are published, but never the API key or username config.
 
-The schedule runs twice hourly (48 requests/day), with no browser polling or browser Last.fm API calls. GitHub may delay schedules and disables schedules on inactive public repositories after 60 days; you can run the workflow manually. Adjust/remove the cron if this cadence is unnecessary. Artwork on the Music page is lazy-loaded directly from the returned HTTPS image host; missing or failed artwork is omitted.
+The schedule runs twice hourly (48 requests/day), with no browser polling or browser Last.fm API calls. GitHub may delay schedules and disables schedules on inactive public repositories after 60 days; you can run the workflow manually. Adjust/remove the cron if this cadence is unnecessary. Recent listening on the Music page is text-only; returned artwork URLs are not loaded by that widget.
 
 This is a **snapshot, not a live presence indicator**. `♫` appears only when the API marked the first track as playing and the snapshot is less than ten minutes old. Older snapshots still show the last known track, without claiming it is live. No client API key, proxy, server process, or streaming embed is required. Do not put a key in YAML, browser JS, or committed JSON.
 
@@ -81,6 +81,7 @@ This is a **snapshot, not a live presence indicator**. `♫` appears only when t
 Set **Settings → Pages → Build and deployment → Source: GitHub Actions**. The new workflow explicitly builds and deploys the artifact; do not also run a competing native/branch deployment. Production deploys only from the repository's default branch, including scheduled/manual runs; PRs and other branches build/test without deploying or receiving Last.fm credentials.
 
 Permissions:
+
 - Workflow/build: `contents: read`; build also uses `pages: read` to discover the configured Pages URL.
 - Deployment job: `pages: write`, `id-token: write`.
 - GitHub environment: `github-pages`; approve it if environment protection rules require approval.
