@@ -1,26 +1,71 @@
-name: Beautiful Jekyll CI
-on: [push, pull_request]
+name: Build and deploy Budihal logs
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17,47 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
-    name: Build Jekyll
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
-      - name: Install dependencies
-        run: bundle install && bundle exec appraisal install
-      - name: Setup Pages
-        id: configure-pages
+          bundler-cache: true
+      - name: Test Last.fm adapter
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Restore listening snapshot
+        if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+        uses: actions/cache@v4
+        with:
+          path: assets/data/lastfm.json
+          key: lastfm-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: lastfm-
+      - name: Refresh listening snapshot
+        if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_USERNAME: ${{ vars.LASTFM_USERNAME }}
+        run: python3 scripts/fetch_lastfm.py
+      - name: Configure Pages
+        id: pages
         uses: actions/configure-pages@v5
-      - name: Setup CI config
-        run: |
-          echo "---" > _config_ci.yml
-          echo "baseurl: ${{ steps.configure-pages.outputs.base_path }}" >> _config_ci.yml
-      - name: Build site
+      - name: Build
         env:
           JEKYLL_ENV: production
-        run: bundle exec appraisal jekyll build --future --config _config_ci.yml,_config.yml
-      - name: Upload artifact
+          PAGES_ORIGIN: ${{ steps.pages.outputs.origin }}
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          ruby -ryaml -e 'File.write("_config_pages.yml", {"url" => ENV.fetch("PAGES_ORIGIN"), "baseurl" => ENV.fetch("PAGES_BASE_PATH")}.to_yaml)'
+          bundle exec jekyll build --future --strict_front_matter --config _config.yml,_config_pages.yml
+          python3 scripts/check_site.py _site "$PAGES_BASE_PATH"
+      - name: Upload site (including generated listening data)
         uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

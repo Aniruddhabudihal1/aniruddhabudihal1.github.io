@@ -1,0 +1,16 @@
+{% assign entries = site.posts | sort: 'date' | reverse %}
+<div class="filterable">
+  {% include tag-filter.html entries=entries %}
+  <ol class="entry-list" role="list">
+    {% for post in entries %}
+    <li class="writing-entry" data-tags="{{ post.tags | jsonify | escape }}">
+      <span class="entry-number" aria-hidden="true">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}.</span>
+      <article>
+        <h3><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h3>
+        <p class="metadata"><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%d %b %Y' }}</time>{% if post.tags.size > 0 %} · {{ post.tags | join: ', ' | escape }}{% endif %} · {% include readtime.html content=post.content %}</p>
+        <p class="entry-excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 38 }}</p>
+      </article>
+    </li>
+    {% else %}<li class="empty-note">No articles yet.</li>{% endfor %}
+  </ol>
+</div>

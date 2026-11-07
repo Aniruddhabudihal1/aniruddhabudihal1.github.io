@@ -1,3 +1,13 @@
+# Budihal logs
+
+A warm, static Jekyll journal for writing, discoveries, and music.
+
+**Start here: [Site maintenance, content, Last.fm, deployment, and testing](docs/MAINTAINING.md).**
+
+The original Beautiful Jekyll documentation is retained below for provenance; its Bootstrap styling and navigation are no longer used by the active layouts.
+
+---
+
 # Beautiful Jekyll
 
 [![Gem Version](https://badge.fury.io/rb/beautiful-jekyll-theme.svg)](https://badge.fury.io/rb/beautiful-jekyll-theme)

@@ -1,0 +1,28 @@
+---
+layout: page
+title: Cool Stuff
+permalink: /cool-stuff/
+subtitle: A reading journal for the curious. Links, discoveries, and loose thoughts.
+description: Interesting links and short observations, collected over time.
+---
+<p class="metadata"><a href="{{ '/cool-stuff/feed.xml' | relative_url }}">Subscribe via RSS →</a></p>
+{% assign entries = site.cool_stuff | sort: 'date' | reverse %}
+<div class="filterable journal">
+  {% include tag-filter.html entries=entries %}
+  {% assign current_month = '' %}
+  {% for entry in entries %}
+    {% assign month = entry.date | date: '%B %Y' %}
+    {% if month != current_month %}
+      {% unless forloop.first %}</section>{% endunless %}
+      <section class="journal-group"><h2>{{ month }}</h2>
+      {% assign current_month = month %}
+    {% endif %}
+    <article class="journal-entry" id="{{ entry.slug }}" data-tags="{{ entry.tags | jsonify | escape }}">
+      {% assign external = entry.link %}
+      <h3>{% if external contains '://' %}<a href="{{ external | escape }}">{{ entry.title | escape }} <span aria-label="external link">↗</span></a>{% else %}{{ entry.title | escape }}{% endif %}</h3>
+      <p class="metadata"><time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: '%d %b %Y' }}</time>{% if entry.tags.size > 0 %} · {{ entry.tags | join: ', ' | escape }}{% endif %}</p>
+      <div class="prose">{{ entry.content | markdownify }}</div>
+    </article>
+    {% if forloop.last %}</section>{% endif %}
+  {% else %}<p class="empty-note">Nothing saved here yet. A little space for the next good find.</p>{% endfor %}
+</div>

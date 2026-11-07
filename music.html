@@ -1,0 +1,35 @@
+---
+layout: page
+title: Music
+permalink: /music/
+subtitle: Old rock n roll, and the stories behind the sound.
+description: Recent listening, favourite records, and short music notes.
+---
+<section class="music-section">
+  <h2>Recently Listening</h2>
+  <div data-lastfm data-limit="8" data-artwork="true" data-source="{{ '/assets/data/lastfm.json' | relative_url }}"><p class="empty-note">Listening history is unavailable just now. Check back later.</p></div>
+</section>
+<section class="music-section">
+  <h2>Favourite Albums and Artists</h2>
+  <ul class="record-list" role="list">
+    {% for record in site.data.music.favourites %}
+    <li>
+      {% if record.artwork %}<img src="{{ record.artwork | relative_url }}" alt="" loading="lazy" width="80" height="80">{% endif %}
+      <div><h3>{% if record.link %}<a href="{{ record.link | escape }}">{{ record.name | escape }}</a>{% else %}{{ record.name | escape }}{% endif %}</h3>
+      {% if record.year %}<span class="metadata">{{ record.year }}</span>{% endif %}
+      {{ record.note | markdownify }}</div>
+    </li>
+    {% else %}<li class="empty-note">A shelf waiting to be filled. Favourite records and artists will live here.</li>{% endfor %}
+  </ul>
+</section>
+<section class="music-section">
+  <h2>Music Notes</h2>
+  {% assign notes = site.music_notes | sort: 'date' | reverse %}
+  {% for note in notes %}
+  <article class="journal-entry" id="{{ note.slug }}">
+    <h3>{{ note.title | escape }}</h3>
+    <p class="metadata"><time datetime="{{ note.date | date_to_xmlschema }}">{{ note.date | date: '%d %b %Y' }}</time>{% if note.tags.size > 0 %} · {{ note.tags | join: ', ' | escape }}{% endif %}</p>
+    {{ note.content | markdownify }}
+  </article>
+  {% else %}<p class="empty-note">Short notes on songs, recording sessions, and musical rabbit holes. Coming when inspiration strikes.</p>{% endfor %}
+</section>

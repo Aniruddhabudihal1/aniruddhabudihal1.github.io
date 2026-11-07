@@ -8,6 +8,12 @@ _site
 Thumbs.db
 ehthumbs.db
 
-Gemfile.lock
+.bundle/
+.jekyll-cache/
+_config_pages.yml
+__pycache__/
+*.pyc
+node_modules/
+.env
 
 beautiful-jekyll-theme-*.gem

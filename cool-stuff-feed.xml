@@ -1,0 +1,22 @@
+---
+layout: null
+permalink: /cool-stuff/feed.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
+<title>Cool Stuff · {{ site.title | xml_escape }}</title>
+<description>Interesting finds and brief notes.</description>
+<link>{{ '/cool-stuff/' | absolute_url }}</link>
+<atom:link href="{{ '/cool-stuff/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml"/>
+{% assign entries = site.cool_stuff | sort: 'date' | reverse %}
+{% for entry in entries limit:30 %}
+{% capture entry_path %}/cool-stuff/#{{ entry.slug }}{% endcapture %}
+<item>
+<title>{{ entry.title | xml_escape }}</title>
+<link>{{ entry_path | absolute_url }}</link>
+<guid isPermaLink="true">{{ entry_path | absolute_url }}</guid>
+<pubDate>{{ entry.date | date: '%a, %d %b %Y %H:%M:%S %z' }}</pubDate>
+<description>{{ entry.content | markdownify | xml_escape }}</description>
+</item>
+{% endfor %}
+</channel></rss>

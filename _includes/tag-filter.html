@@ -1,0 +1,17 @@
+{% assign all_tags = include.entries | map: 'tags' | join: '|' | split: '|' | uniq | sort %}
+{% if all_tags.size > 0 %}
+<details class="tag-filter" hidden>
+  <summary>Filter by tag <span class="filter-count"></span></summary>
+  <fieldset>
+    <legend>Show entries matching any selected tag</legend>
+    <div class="tag-options">
+      {% for tag in all_tags %}{% if tag != '' %}
+      <label class="tag-option"><input type="checkbox" value="{{ tag | escape }}"><span>{{ tag | escape }}</span></label>
+      {% endif %}{% endfor %}
+    </div>
+    <button class="clear-filter" type="button">Clear selection</button>
+  </fieldset>
+</details>
+{% endif %}
+<p class="filter-status sr-only" role="status" aria-live="polite"></p>
+<p class="filter-empty" hidden>No entries match these tags.</p>

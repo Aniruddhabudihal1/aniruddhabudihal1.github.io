@@ -1,0 +1,8 @@
+# Add your own records here; no example is published as a personal favourite.
+# favourites:
+#   - name: "Album or artist name"
+#     year: 1966
+#     artwork: /assets/img/your-cover.jpg
+#     note: "Your personal note. Markdown is welcome."
+#     link: "https://example.com"
+favourites: []

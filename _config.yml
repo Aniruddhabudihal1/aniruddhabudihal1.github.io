@@ -20,9 +20,10 @@ author: Aniruddha Budihal
 ###############################################
 
 navbar-links:
-  About Me: "aboutme"
-  Resources:
-    - Building a Copy on write file system in rust : ./_posts/2026-07-24-cow-filesystem-fuse-rust.md
+  Blogs: /blogs/
+  Cool Stuff: /cool-stuff/
+  Music: /music/
+  Contact: /contact/
 
 ################
 # --- Logo --- #
@@ -81,7 +82,17 @@ social-network-links:
 
 # If you want your website to generate an RSS feed, provide a description
 # The URL for the feed will be https://<your_website>/feed.xml
-#rss-description: This website is a virtual proof that I'm awesome
+rss-description: Technical writing, interesting finds, and music from Budihal logs.
+description: A personal corner for systems, writing, music, and things worth keeping.
+# No domain/baseurl was configured previously. Pages Actions supplies these at build time.
+url: "https://aniruddhabudihal1.github.io"
+baseurl: "/budihal_logs.github.io"
+
+collections:
+  cool_stuff:
+    output: false
+  music_notes:
+    output: false
 
 ###########################
 # --- General options --- #
@@ -260,13 +271,20 @@ timezone: "America/Toronto"
 markdown: kramdown
 highlighter: rouge
 permalink: /:year-:month-:day-:title/
-paginate: 5
+# The full writing archive is shared by the homepage and /blogs/.
 
 kramdown:
   input: GFM
 
 # Default YAML values (more information on Jekyll's site)
 defaults:
+  - scope:
+      path: "_posts/2026-07-24-cow-filesystem-fuse-rust.md"
+    values:
+      title: "Cow Filesystem FUSE Rust"
+      description: "Building a multithreaded copy-on-write filesystem using Rust and FUSE."
+      tags: [systems, rust, filesystems]
+      toc: true
   -
     scope:
       path: ""
@@ -283,6 +301,14 @@ defaults:
 
 # Exclude these files from production site
 exclude:
+  - scripts/
+  - tests/
+  - Appraisals
+  - .bundle/
+  - vendor/
+  - beautiful-jekyll-theme.gemspec
+  - staticman.yml
+  - _config_pages.yml
   - CHANGELOG.md
   - CNAME
   - Gemfile
@@ -293,7 +319,6 @@ exclude:
   - docs/
 
 plugins:
-  - jekyll-paginate
   - jekyll-sitemap
 
 # Beautiful Jekyll / Dean Attali
