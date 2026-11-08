@@ -81,12 +81,14 @@
   function safeUrl(value) {
     try { const url = new URL(value); return url.protocol === 'https:' ? url.href : null; } catch (_) { return null; }
   }
-  const requests = new Map();
-  document.querySelectorAll('[data-lastfm]').forEach(async widget => {
+  const listeningWidgets = document.querySelectorAll('[data-lastfm]');
+  function refreshListening() {
+    const requests = new Map();
+    listeningWidgets.forEach(async widget => {
     try {
       const source = widget.dataset.source;
       if (!requests.has(source)) {
-        requests.set(source, fetch(source, { signal: AbortSignal.timeout(6000) }).then(response => {
+        requests.set(source, fetch(source, { cache: 'no-store', signal: AbortSignal.timeout(6000) }).then(response => {
           if (!response.ok) throw new Error('Listening history unavailable');
           return response.json();
         }));
@@ -133,7 +135,17 @@
         widget.replaceChildren(list, timestamp);
       }
     } catch (_) {
-      // Keep the static fallback. No polling, third-party browser calls, or exposed keys.
+      // Keep the previous tracks (or static fallback) on transient failures.
     }
-  });
+    });
+  }
+  if (listeningWidgets.length) {
+    refreshListening();
+    setInterval(() => {
+      if (!document.hidden) refreshListening();
+    }, 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshListening();
+    });
+  }
 })();

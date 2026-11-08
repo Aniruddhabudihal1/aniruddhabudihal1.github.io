@@ -54,11 +54,22 @@ const assert = require('node:assert/strict');
   await page.getByRole('button', { name: 'Clear selection' }).click();
   assert.equal(await page.locator('.writing-entry:visible').count(), 1);
 
+  await page.clock.install();
   const track = { name: 'Fixture track', artist: 'Fixture artist', album: '', url: 'https://www.last.fm/music/test', image: '', now_playing: true };
   await page.route('**/assets/data/lastfm.json', route => route.fulfill({ json: { updated_at: new Date().toISOString(), tracks: [track] } }));
   await page.goto(base);
   await page.waitForFunction(() => document.querySelector('[data-lastfm]').textContent.includes('Fixture track'));
   assert.match(await page.locator('[data-lastfm]').textContent(), /♫ Fixture track · Fixture artist/);
+  // An already-open page must pick up a newly deployed snapshot without reload.
+  await page.route('**/assets/data/lastfm.json', route => route.fulfill({ json: {
+    updated_at: new Date().toISOString(), tracks: [{ ...track, name: 'Next track' }],
+  } }));
+  await page.clock.runFor(60 * 1000);
+  await page.waitForFunction(() => document.querySelector('[data-lastfm]').textContent.includes('Next track'));
+  await page.route('**/assets/data/lastfm.json', route => route.abort());
+  await page.clock.runFor(60 * 1000);
+  assert.match(await page.locator('[data-lastfm]').textContent(), /Next track/);
+  await page.route('**/assets/data/lastfm.json', route => route.fulfill({ json: { updated_at: new Date().toISOString(), tracks: [track] } }));
   await page.goto(base + 'music/');
   await page.waitForSelector('.track-list');
   assert.equal(await page.locator('.track-list img').count(), 0);
