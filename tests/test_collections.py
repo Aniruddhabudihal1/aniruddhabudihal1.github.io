@@ -56,7 +56,7 @@ class CollectionTests(unittest.TestCase):
                 post = (output / '2026-07-24-cow-filesystem-fuse-rust/index.html').read_text()
                 self.assertIn('src="' + base + '/assets/img/polarizer.png"', post)
                 subprocess.run(['python3', str(ROOT / 'scripts/check_site.py'), str(output), base],
-                               check=True, capture_output=True, text=True)
+                               check=True, text=True)
 
 
 if __name__ == '__main__':
