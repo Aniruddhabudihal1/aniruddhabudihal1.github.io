@@ -13,7 +13,7 @@ description: Recent listening and favourite albums and artists.
   <ul class="record-list" role="list">
     {% for record in site.data.music.favourites %}
     <li>
-      {% if record.artwork %}<img src="{{ record.artwork | relative_url }}" alt="" loading="lazy" width="80" height="80">{% endif %}
+      {% if record.artwork %}<img src="{{ record.artwork | relative_url }}" alt="" loading="lazy" width="280" height="280">{% endif %}
       <div><h3>{% if record.link %}<a href="{{ record.link | escape }}">{{ record.name | escape }}</a>{% else %}{{ record.name | escape }}{% endif %}</h3>
       {% if record.year %}<span class="metadata">{{ record.year }}</span>{% endif %}
       </div>
