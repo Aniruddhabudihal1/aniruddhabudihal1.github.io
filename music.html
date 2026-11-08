@@ -9,13 +9,14 @@ description: Recent listening and favourite albums and artists.
   <div data-lastfm data-limit="8" data-source="{{ '/assets/data/lastfm.json' | relative_url }}"><p class="empty-note">Listening history is unavailable just now. Check back later.</p></div>
 </section>
 <section class="music-section">
-  <h2>Favourite Albums and Artists</h2>
+  <h2>Favourite Albums</h2>
   <ul class="record-list" role="list">
     {% for record in site.data.music.favourites %}
     <li>
       {% if record.artwork %}<img src="{{ record.artwork | relative_url }}" alt="" loading="lazy" width="280" height="280">{% endif %}
       <div><h3>{% if record.link %}<a href="{{ record.link | escape }}">{{ record.name | escape }}</a>{% else %}{{ record.name | escape }}{% endif %}</h3>
       {% if record.year %}<span class="metadata">{{ record.year }}</span>{% endif %}
+      {% if record.description %}<span class="metadata">{{ record.description }}</span>{% endif %}
       </div>
     </li>
     {% endfor %}
