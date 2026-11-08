@@ -16,7 +16,7 @@ description: Recent listening and favourite albums and artists.
       {% if record.artwork %}<img src="{{ record.artwork | relative_url }}" alt="" loading="lazy" width="280" height="280">{% endif %}
       <div><h3>{% if record.link %}<a href="{{ record.link | escape }}">{{ record.name | escape }}</a>{% else %}{{ record.name | escape }}{% endif %}</h3>
       {% if record.year %}<span class="metadata">{{ record.year }}</span>{% endif %}
-      {% if record.description %}<span class="metadata">{{ record.description }}</span>{% endif %}
+      {% if record.note %}<span class="metadata">{{ record.note }}</span>{% endif %}
       </div>
     </li>
     {% endfor %}
