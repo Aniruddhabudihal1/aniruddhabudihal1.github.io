@@ -2,6 +2,9 @@
 
 source "https://rubygems.org"
 
+# Liquid uses bigdecimal, which is no longer a default gem in Ruby 3.4+.
+gem "bigdecimal"
+
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
 # and associated library.
 platforms :mingw, :x64_mingw, :mswin, :jruby do
