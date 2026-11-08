@@ -34,10 +34,11 @@ And also an inode is the unique value associated with a particular node, the nod
 Docker uses a copy on write filesystem to manage its image files. For example lets say you had 10 containers running an nginx instance on a single system. Having a nginx instance for each container will lead to a lot of space being used and wasted, hence here a copy on write method is used where there is a base image layer, and every edit is translated only in the respective containers writable path.
 Even at the fundamental OS level when you execute a fork call, because the child process created contains almost the same state as the parent. The scale at which fork calls are called, we would very easily run out of memory if we were to make separate memory pages per new process. so here again this is dealt where every new process that is created uses a copy on write method with its parent that created it, every edit done to a memory page will only then result in cloning of the memory page for the child.
 
-##  Implementing a COW filesystem
+## Implementing a COW filesystem
 
 Before we understand how to implement a COW filesystem, we need to understand the internals of a normal filesystem and how it all works. In a normal file system whenever you do an operation like `cd` or `ls` or creating or deleting a file, etc all of the calls are routed to the OS kernel which then runs the required functions to get the result.
-Some of these functions are : 
+Some of these functions are :
+
 - lookup : it searches for the inode value of a particular node name and returns the inode value if it exists
 - readdir : it reads the nodes present under a particular directory
 - getattr : it gets the attributes of a particular node
@@ -46,11 +47,11 @@ Some of these functions are :
 - read : reads the contents of a file and returns the content of that file
 - rename : renames the node, or can move the directory to any other location in the filesystem
 - rmdir : removes a directory
-- mkdir : creates a new directory 
+- mkdir : creates a new directory
 - create : creates a new file
 
 Most of the above functions significantly change when dealing with a copy on write file system, as you need to account for a lot more things to get the logic working
-For implementing your own functions for a file system we need to first redirect the call to operations like `ls` or creating or deleting a  node away from the kernel logic to our own logic in the user space. This is achieved by using a FUSE library which redirects all interactions with the mounted file system to your userspace function logic. For my implementation I used the `fuser` library which provides the fuse library in Rust. 
+For implementing your own functions for a file system we need to first redirect the call to operations like `ls` or creating or deleting a  node away from the kernel logic to our own logic in the user space. This is achieved by using a FUSE library which redirects all interactions with the mounted file system to your userspace function logic. For my implementation I used the `fuser` library which provides the fuse library in Rust.
 
 Before starting of implementing the functions, we need to first understand how we are building the base readable path. The base readable path will be the path on which we are mounting our filesystem. So before even calling the mount, we need to read through the file tree and map it out. I have just kept the state of my readable path in memory, because I am not going to be using it on very large files, but if you were you should probably write it to disk.
 So I have a function called `instantiate_fs` which recursively goes through each directory in each path and maintains a state of the mounted path (by state I mean the file content and the children of each directory and the general mapping of the all the nodes).
@@ -86,7 +87,7 @@ if let Some(parent_inodeinstance) = global_state.get_mut(&parent_val) {
         .unwrap()
         .try_write()
         .unwrap();
-	
+ 
     parent_hash.insert(
         str_child_path.clone(),
         *file_system_instance.curr_inode_val.try_read().unwrap(),
@@ -95,11 +96,11 @@ if let Some(parent_inodeinstance) = global_state.get_mut(&parent_val) {
 ```
 
 Then dependening on whether the current node is a file, or a directory we create a new node instance to which you add the relevant node attributes and its content.If it is a directory then this function is called recursively once again on that directory
-At this stage we mount the filesystem, and every subsequent operation done on the mounted path is redirected to our filesystems function which we must now write 
+At this stage we mount the filesystem, and every subsequent operation done on the mounted path is redirected to our filesystems function which we must now write
 
 But before getting into functions, we need to identify how we will identify each unique instance that interacts with our filesystem ? We cannot use something like a process id, as these change frequently and we will end up creating a new writable path every time it changes.
 So it depends on what you choose to define as an "instance" that is interacting with your system. In the case of Docker a container is an instance, but for me to test it out I am going to just be creating a new terminal instance and interact with the file system. So I used a  `tty_nr` value which is unique to each terminal instance that interacts with the file system, even if the pid changes the `tty_nr` remains constant.
-So whenever we encounter a new `tty_nr` value calling our lookup function we have to clone all the directories in the readable path for that particular instance. But why just for directories, why not just leave it with a root stub which can be expanded upon later ? 
+So whenever we encounter a new `tty_nr` value calling our lookup function we have to clone all the directories in the readable path for that particular instance. But why just for directories, why not just leave it with a root stub which can be expanded upon later ?
 simply because it is much easier to have the base readable directory structure in place, plus directories are pretty light weight as all they do is point to other directories (atleast in the current state when I clone it, as I am not including files in the cloning process)
 
 I have a process called `clone_fs` which when called for a session id will instantiate the readable directory path for its respective writable root
@@ -142,7 +143,7 @@ This is probably the single most important function for a file system, cause wit
 
 so if lets say I had : `/home/test/something.txt` , the fuse layer would sends the parent as `/` and searching for a child called `home`, if it exists it returns the inode attribute of the particular node, which in the subsequent lookup function `home` becomes the parent and `test` is the next child and it goes so on.
 
-In a COW filesystem, the lookup function is the first time the file system will encounter a new session id, so we must make that check first where we check if the session id already exists or we have to clone the readable path for the new session id, in fact the code snippet above is from the lookup function. The next course of action would be to search the hashmap of the parent directory and find the child's name, but we also need to keep in mind that there is both a readable path and a writable path, and it could be that the file at the end of it could exist solely in the writable path or solely in the readable path or in both ! 
+In a COW filesystem, the lookup function is the first time the file system will encounter a new session id, so we must make that check first where we check if the session id already exists or we have to clone the readable path for the new session id, in fact the code snippet above is from the lookup function. The next course of action would be to search the hashmap of the parent directory and find the child's name, but we also need to keep in mind that there is both a readable path and a writable path, and it could be that the file at the end of it could exist solely in the writable path or solely in the readable path or in both !
 
 ```rust
 let readable_mapping = self.writable_to_readable_inode.try_read().unwrap();
@@ -171,7 +172,8 @@ if let Some(relative_readable_inode) = readable_mapping.get(&parent.0) {
 
 in the above code snippet, I am finding the equivalent readable instance of the inode
 
-Because we have instantiated every single directory that existed during `clone_fs` for the writable path, we can be sure that every instance of a directory whether newly created or deleted or never used will always be present in the writable path, and we have to account only for files. So when returning the inode attributes for a directory we always return for the writable path and not the readable path, cause once we have the writable path directory inode, we can find the equivalent readable path inode (from the writable inode to readable mapping in the global state), so once we get to the file we have a couple of choices : 
+Because we have instantiated every single directory that existed during `clone_fs` for the writable path, we can be sure that every instance of a directory whether newly created or deleted or never used will always be present in the writable path, and we have to account only for files. So when returning the inode attributes for a directory we always return for the writable path and not the readable path, cause once we have the writable path directory inode, we can find the equivalent readable path inode (from the writable inode to readable mapping in the global state), so once we get to the file we have a couple of choices :
+
 - If the writable inode for the file exists : just return that without thinking about the readable inode attributes
 - if the writable inode does not exist and the readable inode does exist, return the readable inode attributes
 - if neither exist, then return an error
@@ -218,7 +220,8 @@ So here once again we use the writable to readable mapping to get the readable i
 
 ### write function
 
-This function gets invoked whenever there is an insertion / editing to a file. There are plenty of scenarios to deal with : 
+This function gets invoked whenever there is an insertion / editing to a file. There are plenty of scenarios to deal with :
+
 - File exists  in the readable path
 - file exists in the writable path
 - file exists in neither
@@ -299,15 +302,15 @@ if its present in either or both paths, the name is linked with 0 in the parents
 
 A similar logic can be used to delete directories as well, but for other implementations of a COW filesystem used by lets say docker, they use different methods of marking a file and a directory as deleted
 
-### rename function 
+### rename function
 
-For rename the cases you have to deal with are : 
+For rename the cases you have to deal with are :
 simply renaming the file or directory to something new which just involves you changing the parents hashmap and the global inode to string mapping. If the file does not exist in the writable path, you have to make its instance in its writable path
 
 If you are moving the file or directory from one place to another, there are a lot of things to take care of like, you must check if its solely present in the writable path or readable path or both and then do accordingly. When we say "moving" a node from under one parent to another, you have to remove the instance from that old parent ; then delete the node under the old parent by marking its inode value as 0.
 You might ask as to why its being marked as 0, cause if the lookup function were to search for this node in the parents hash map it would think its deleted and will always return not found. But as we are moving it to an entirely new parent, the particular name will never get searched in the old parent directory, and hence no issues.
 
-example : if I were to move `/home/test.txt` to `/home/something/testt.txt` 
+example : if I were to move `/home/test.txt` to `/home/something/testt.txt`
 In the home directory we mark test.txt to 0, and then under the new parent we create a new inode value pointing to the new name and we redirect rest of the state of the filesystem from the old inode value to the new inode value. Like we will need to update the writable to readable path (if it was already existing in the writable path), the inode to inodecontent mapping needs to change, the inode value within the  attributes also needs to change, the old inode to string mapping needs to be removed and a new mapping added.
 
 but all of the above can happen only if it already existed in the writable path, what if it did not ?
@@ -368,13 +371,13 @@ if old_hm.is_some() {
 }
 ```
 
-updating of global state after deleting 
+updating of global state after deleting
 
 ### final thoughts
 
 This was my first significant project using rust (or otherwise as well) and really enjoyed building it, and got to learn sooo much. Like before working on this project I knew somethings here and there about filesystems, but nothing solid and concrete. Really enjoyed building this project and would recommend it to anyone who wants to understand how dockers filesystem works, or how file systems work in general.
 
-There are a lot of things I would loved to have done a bit differently, like for example when I instantiate the readable path or when I am cloning the writable path, I am doing so recursively, and it just does not feel like a clean solution, feels very hacky for some reason, so that is something I will definitely want to revisit. 
+There are a lot of things I would loved to have done a bit differently, like for example when I instantiate the readable path or when I am cloning the writable path, I am doing so recursively, and it just does not feel like a clean solution, feels very hacky for some reason, so that is something I will definitely want to revisit.
 
  I have also used reader writer locks to implement concurrency, but I want to see the performance difference of using Async rust on this project. And lately a lot of my youtube has been filled with talks on how to implement data oriented design, which I would love to do just to explore, cause in the words of Richard Feynman "What I cannot create, I do not understand" and thus would love to get my hands dirty and learn about it and see with my eyes how my project interacts differently.
 

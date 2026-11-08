@@ -53,8 +53,7 @@ social-network-links:
   rss: false  # remove this line if you don't want to show an RSS link at the bottom
   github: https://github.com/aniruddhabudihal1/
   twitter: https://x.com/annondevv
-  whatsapp: +91 9535594466
-  medium: https://medium.com/@anibud
+  phone: +91 9535594466
 #  reddit: yourname or r/yoursubreddit
   linkedin: https://www.linkedin.com/in/aniruddha-budihal/
 #  xing: yourname
@@ -68,7 +67,7 @@ social-network-links:
 #  yelp: yourname
 #  telegram: yourname
 #  calendly: yourname
-#  mastodon: instance.url/@username
+  mastodon: https://discuss.systems/@budihal
 #  bluesky: yourname
 #  ORCID: your ORCID ID
 #  google-scholar: your google scholar
@@ -101,7 +100,7 @@ collections:
 # Select which social network share links to show in posts
 share-links-active:
   github: true
-  twitter: true
+  #twitter: true
   #facebook: true
   linkedin: true
   #vk: false
@@ -281,7 +280,7 @@ defaults:
   - scope:
       path: "_posts/2026-07-24-cow-filesystem-fuse-rust.md"
     values:
-      title: "Cow Filesystem FUSE Rust"
+      title: "Cow Filesystem"
       description: "Building a multithreaded copy-on-write filesystem using Rust and FUSE."
       tags: [systems, rust, filesystems]
       toc: true

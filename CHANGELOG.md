@@ -1,4 +1,5 @@
 ## Unreleased version
+
 - BREAKING CHANGE: Allow changing the order of the social network links that appear in the footer (#1152)
 - BREAKING CHANGE: `google-scholar` social network link no longer requires the prefix `citations?user=`; if you previously set this parameter, it needs to be updated (#1189)
 - Added `mathjax` YAML parameter to allow support for MathJax, used to write LaTeX expressions (#195)
@@ -31,7 +32,7 @@ This version has been in the works for a few years. It includes several new feat
 
 #### New parameters and settings
 
-- Added `navbar-var-length` config setting that allows the navigation menu to be the same length as the longest sub-menu, so that long words in the submenu are not cut off (#765) 
+- Added `navbar-var-length` config setting that allows the navigation menu to be the same length as the longest sub-menu, so that long words in the submenu are not cut off (#765)
 - Added `post_search` config setting that creates a Search button in the navbar (#770)
 - Added `edit_page_button` config setting that adds a "Edit page" button to the footer (to edit the current page on GitHub) (#1004)
 - Added `footer-hover-col` config setting to customize the hover colour of links in the footer (#848)
@@ -45,7 +46,7 @@ This version has been in the works for a few years. It includes several new feat
 
 #### Bug fixes
 
-- Fixed page titles, subtitles, and excerpts rendering correctly when there are special characeters in them (#856) 
+- Fixed page titles, subtitles, and excerpts rendering correctly when there are special characeters in them (#856)
 - Fixed bug where navbar secondary level dropdown items didn't inherit the same colour as the primary navbar links
 - Fixed bug where the navbar "burger" collapsed button didn't always revert back to a light colour
 - Fixed bug where using an image as a navbar title did not render in GitHub Project pages that did not have a custom domain
@@ -60,7 +61,6 @@ This version has been in the works for a few years. It includes several new feat
 - Added social network links for Patreon, Medium, Itch.io, Discord, Kaggle, Hackerrank (#783, #788, #907, #961, #978)
 - Slightly reworked margins and position for avatar image to resolve an alignment issue on Safari
 - Changed the width at which the navbar collapses to a higher threshold because most modern non-mobile browsers are >1000px
-
 
 ## v5.0.0 (2020-09-15)
 
@@ -159,7 +159,7 @@ One of the major changes in this version is that a lot of time was spent on reth
 ## v2.2.0 (2020-04-27)
 
 - Added social network link: Telegram (#625) (thanks @mashed-potatoes)
-- Moved the demo site to an independent URL: https://beautifuljekyll.com
+- Moved the demo site to an independent URL: <https://beautifuljekyll.com>
 - Major documentation overhaul and cleanup of old files
 - Fixed a few bugs from the remote_theme migration
 
@@ -248,4 +248,3 @@ One of the major changes in this version is that a lot of time was spent on reth
 ... Many small changes because the site was in its infancy
 
 **2015-03-12** Beautiful Jekyll version 0.0000001 is released!
-
