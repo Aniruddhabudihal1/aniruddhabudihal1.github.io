@@ -5,10 +5,9 @@
 #     artwork: /assets/img/your-cover.jpg
 #     note: "Your personal note. Markdown is welcome."
 #     link: "https://example.com"
-favourites: [
-- name : "All things must pass"
-  year : 1970
-  artwork : ../assets/img/All_things_must_pass.jpg
-  note : "This album is my favourite, not only cause of the incredible quality and depth of the music in it, but also the underdog story of George Harrison across the beatles, where Lennon and Mccartney didnt really value him quite a bit as a songwriter. I love that underdog angle to this album, which is probably the greatest individual album ever produced by a beatle in their solo career."
-  link : "https://music.apple.com/in/album/all-things-must-pass-2014-remaster/1666672128"
-]
+favourites:
+  - name: "All things must pass"
+    year: 1970
+    artwork: /assets/img/All_things_must_pass.jpg
+    note: "This album is my favourite, not only cause of the incredible quality and depth of the music in it, but also the underdog story of George Harrison across the beatles, where Lennon and Mccartney didnt really value him quite a bit as a songwriter. I love that underdog angle to this album, which is probably the greatest individual album ever produced by a beatle in their solo career."
+    link: "https://music.apple.com/in/album/all-things-must-pass-2014-remaster/1666672128"

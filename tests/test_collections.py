@@ -28,6 +28,20 @@ class CollectionTests(unittest.TestCase):
             print(result.stderr, end='', file=sys.stderr, flush=True)
         print(f'[collections] PASS: {context}', flush=True)
 
+    def test_real_site_and_baseurls(self):
+        # Fixture tests replace music.yml; also build the actual published data.
+        with tempfile.TemporaryDirectory() as directory:
+            for base in ('', '/test-project'):
+                config = Path(directory) / 'override.yml'
+                config.write_text(f'url: "https://aniruddhabudihal1.github.io"\nbaseurl: "{base}"\n')
+                output = Path(directory) / ('project-site' if base else 'root-site')
+                self.run_stage('Real site build',
+                               ['bundle', 'exec', 'jekyll', 'build', '--future',
+                                '--strict_front_matter', '--trace', '--destination', str(output),
+                                '--config', f'{ROOT / "_config.yml"},{config}'], base)
+                self.run_stage('Real site validation',
+                               [sys.executable, str(ROOT / 'scripts/check_site.py'), str(output), base], base)
+
     def test_collections_and_baseurls(self):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / 'source'
