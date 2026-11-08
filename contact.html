@@ -12,9 +12,10 @@ description: Find Aniruddha Budihal elsewhere on the internet.
     {% assign target = value %}
     {% case name %}
     {% when 'email' %}{% assign target = value | prepend: 'mailto:' %}
+    {% when 'phone' %}{% assign target = value | remove: ' ' | prepend: 'tel:' %}
     {% when 'whatsapp' %}{% assign target = value | remove: ' ' | remove: '+' | prepend: 'https://wa.me/' %}
     {% endcase %}
-    <li><a href="{{ target | escape }}">{% if name == 'github' %}GitHub{% elsif name == 'linkedin' %}LinkedIn{% elsif name == 'twitter' %}Twitter / X{% elsif name == 'whatsapp' %}WhatsApp{% else %}{{ name | capitalize }}{% endif %} <span aria-hidden="true">↗</span></a></li>
+    <li><a href="{{ target | escape }}">{% if name == 'github' %}GitHub{% elsif name == 'linkedin' %}LinkedIn{% elsif name == 'twitter' %}Twitter / X{% elsif name == 'whatsapp' %}WhatsApp{% elsif name == 'lastfm' %}Last.fm{% else %}{{ name | capitalize }}{% endif %} <span aria-hidden="true">↗</span></a></li>
   {% endif %}
 {% endfor %}
 </ul>

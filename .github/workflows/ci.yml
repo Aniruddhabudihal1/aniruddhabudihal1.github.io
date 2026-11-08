@@ -25,7 +25,7 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler-cache: true
-      - name: Test Last.fm adapter
+      - name: Test collections, site validation, and Last.fm adapter
         run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Restore listening snapshot
         if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch

@@ -25,12 +25,15 @@ class Links(HTMLParser):
 
 def check(root, base):
     root = root.resolve()
+    print(f'[check_site] Validating output={root}, baseurl={base!r}', flush=True)
+    assert root.is_dir(), f'Site output directory does not exist: {root}'
     failures = []
     pages = {}
     for file in root.rglob('*.html'):
         parser = Links()
         parser.feed(file.read_text())
         pages[file] = parser
+    print(f'[check_site] Checking links/assets/anchors in {len(pages)} HTML pages', flush=True)
     for file, parser in pages.items():
         for link in parser.links:
             url = urllib.parse.urlsplit(link)
@@ -50,9 +53,13 @@ def check(root, base):
                 target /= 'index.html'
             target = target.resolve()
             if not target.exists():
-                failures.append(f'{file.relative_to(root)}: missing {link}')
+                failures.append(f'{file.relative_to(root)}: missing {link!r} (resolved target: {target})')
             elif url.fragment and target in pages and urllib.parse.unquote(url.fragment) not in pages[target].ids:
                 failures.append(f'{file.relative_to(root)}: missing anchor {link}')
+    if failures:
+        print(f'[check_site] Found {len(failures)} link error(s):\n' + '\n'.join(failures),
+              file=sys.stderr, flush=True)
+    print('[check_site] Checking required pages, navigation, and canonical URLs', flush=True)
     for path in ('index.html', 'blogs/index.html', 'cool-stuff/index.html', 'music/index.html',
                  'contact/index.html', 'now/index.html', 'aboutme/index.html',
                  '2026-07-24-cow-filesystem-fuse-rust/index.html'):
@@ -62,12 +69,14 @@ def check(root, base):
         assert 'class="theme-toggle"' in text, f'Missing shared navigation on {path}'
         assert 'rel="canonical"' in text, f'Missing canonical on {path}'
     for path in ('feed.xml', 'cool-stuff/feed.xml', 'sitemap.xml'):
+        print(f'[check_site] Parsing XML: {path}', flush=True)
         ET.parse(root / path)
     feed = ET.parse(root / 'feed.xml')
     assert feed.find('.//item') is not None, 'Existing post missing from RSS'
+    print('[check_site] Checking Last.fm snapshot and blog tags', flush=True)
     data = json.loads((root / 'assets/data/lastfm.json').read_text())
-    assert isinstance(data['tracks'], list)
-    assert 'data-tags="[&quot;systems&quot;' in (root / 'blogs/index.html').read_text()
+    assert isinstance(data['tracks'], list), 'assets/data/lastfm.json: tracks must be a list'
+    assert 'data-tags="[&quot;systems&quot;' in (root / 'blogs/index.html').read_text(), 'blogs/index.html: missing systems tag data'
     assert not failures, '\n'.join(failures)
     print(f'Checked {len(pages)} HTML pages, internal links/assets/anchors, preserved post, and feeds (baseurl={base!r}).')
 
